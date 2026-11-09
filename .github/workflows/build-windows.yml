@@ -1,0 +1,35 @@
+name: Build Windows EXE (Servidor PTT)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10' # Tkinter viene incluido en esta versión
+
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+
+    - name: Compilar con PyInstaller
+      # --onefile empaqueta todo en un solo .exe
+      # --windowed evita que se abra una consola negra
+      run: pyinstaller --noconfirm --onefile --windowed --name "PTT_Server" server_ptt.py
+
+    - name: Subir ejecutable como artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: PTT-Server-Windows
+        path: dist/PTT_Server.exe
